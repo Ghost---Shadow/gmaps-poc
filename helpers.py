@@ -6,6 +6,11 @@ resolution = 1000
 kmToDeg = lambda x: x/111
 truncatedRound = lambda x: round(float(x) * resolution) / resolution
 
-distance = kmToDeg(5)
+WIDTH = 5
+PACKING_FACTOR = 2
+KM_TO_M = 1000
+
+radius = round((WIDTH * KM_TO_M * PACKING_FACTOR)/ steps ) 
+distance = kmToDeg(WIDTH)
 
 

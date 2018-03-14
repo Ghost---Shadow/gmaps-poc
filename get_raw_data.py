@@ -16,8 +16,10 @@ for lat in latitudes:
     cachedResult[lat] = {}
     for long in longitudes:
         print(lat,long)
-        uri = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=%s,%s&rankby=distance&key=%s' \
-              %(lat,long,key)
+##        uri = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=%s,%s&rankby=distance&key=%s' \
+##              %(lat,long,key)
+        uri = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=%s,%s&radius=%s&key=%s' \
+              %(lat,long,radius,key)
 
         cachedResult[lat][long] = requests.get(uri).json()
 
