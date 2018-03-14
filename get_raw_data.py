@@ -2,15 +2,10 @@ import requests
 import numpy as np
 import json
 
+from helpers import *
+
 with open('key.txt','r') as f:
     key = f.read()
-
-kmToDeg = lambda x: x/111
-
-latStart = 12.95
-longitudeStart = 77.7
-distance = kmToDeg(5)
-steps = 10
 
 latitudes = np.linspace(latStart, latStart + distance, steps)
 longitudes = np.linspace(longitudeStart, longitudeStart + distance, steps)
