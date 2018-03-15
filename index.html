@@ -15,40 +15,10 @@
       margin: 0;
       padding: 0;
     }
-
-    #floating-panel {
-      position: absolute;
-      top: 10px;
-      left: 25%;
-      z-index: 5;
-      background-color: #fff;
-      padding: 5px;
-      border: 1px solid #999;
-      text-align: center;
-      font-family: 'Roboto', 'sans-serif';
-      line-height: 30px;
-      padding-left: 10px;
-    }
-
-    #floating-panel {
-      background-color: #fff;
-      border: 1px solid #999;
-      left: 25%;
-      padding: 5px;
-      position: absolute;
-      top: 10px;
-      z-index: 5;
-    }
   </style>
 </head>
 
 <body>
-  <div id="floating-panel">
-    <button onclick="toggleHeatmap()">Toggle Heatmap</button>
-    <button onclick="changeGradient()">Change gradient</button>
-    <button onclick="changeRadius()">Change radius</button>
-    <button onclick="changeOpacity()">Change opacity</button>
-  </div>
   <div id="map"></div>
   <script>
     let map;
@@ -68,7 +38,7 @@
         }, 0)
 
         points.map(point => {
-          new google.maps.Circle({
+          const circle = new google.maps.Circle({
             strokeColor: '#000000',
             strokeOpacity: 0.8,
             strokeWeight: 0,
@@ -76,7 +46,30 @@
             fillOpacity: point.heat / maxHeat * factor,
             map: map,
             center: { lat: point.lat, lng: point.lng },
-            radius: 500,
+            radius: 1000,
+          });
+          circle.addListener('click', function () {
+            console.log(point.details.length)
+            if (!point.details.markers) {
+              point.details.markers = [];
+              point.details.map(establishment => {
+                console.log(establishment.name,
+                  establishment.types);
+                point.details.markers.push(new google.maps.Marker({
+                  position: {
+                    lat: establishment.geometry.location.lat,
+                    lng: establishment.geometry.location.lng
+                  },
+                  map: map,
+                  title: establishment.name,
+                }));
+              });
+            } else {
+              point.details.markers.map(marker => {
+                marker.setMap(null);
+              })
+              delete point.details.markers;
+            }
           });
         });
       })
@@ -91,7 +84,8 @@
             ...point,
             lat: parseFloat(point.lat),
             lng: parseFloat(point.lng),
-          }));
+          }))
+            .filter(point => point.heat !== 0);
         });
     }
   </script>
