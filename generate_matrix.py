@@ -15,12 +15,12 @@ longitudes = np.linspace(longitudeStart, longitudeStart + distance, resolution)
 
 matrix = np.zeros([resolution, resolution], np.float32)
 
-#myPreference = [{'name':'atm','weight':2}, {'name':'school','weight':1}]
-with open('./types.txt','r') as f:
-    allTypes = f.read().split('\n')
-    myPreference = []
-    for aType in allTypes:
-        myPreference.append({'name':aType,'weight':1})
+myPreference = [{'name':'atm','weight':2}, {'name':'school','weight':1}]
+##with open('./types.txt','r') as f:
+##    allTypes = f.read().split('\n')
+##    myPreference = []
+##    for aType in allTypes:
+##        myPreference.append({'name':aType,'weight':1})
 
 
 heatmaps = []
@@ -31,7 +31,6 @@ for i, lat in enumerate(latitudes):
         lng = str(truncatedRound(lng))
         if lat in data:
             if lng in data[lat]:
-##                matrix[i,j] = len(data[lat][lng])
                 names = []
                 for establishment_id in data[lat][lng]:
                     establishment = data[lat][lng][establishment_id]

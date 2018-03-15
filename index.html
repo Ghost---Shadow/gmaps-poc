@@ -70,44 +70,37 @@
         mapTypeId: 'satellite'
       });
 
-      getPoints().then(points => {
-        // heatmap = new google.maps.visualization.HeatmapLayer({
-        //   data: points,
-        //   map: map
-        // });
-        const radius = 5;
-        // points.map(point => {
-        //   // console.log(point.latLng)
-        //   new google.maps.Circle({
-        //     center: new google.maps.LatLng(point.lat, point.lng),
-        //     clickable: true,
-        //     draggable: false,
-        //     editable: false,
-        //     fillColor: '#004de8',
-        //     fillOpacity: 0.27,
-        //     map: map,
-        //     radius: radius,
-        //     strokeColor: '#004de8',
-        //     strokeOpacity: 0.62,
-        //     strokeWeight: 1,
-        //   })
-        // })
-        console.log(points.length)
-        for (let i = 0; i < 100; i += 1) {
-          const lat = parseFloat(points[i].lat);
-          const lng = parseFloat(points[i].lng);
-          console.log(lat, lng);
+      getCircles().then(circles => {
+        const clusterColors = [
+          '#ff5533',
+          '#0074D9',
+          '#7FDBFF',
+          '#39CCCC',
+          '#3D9970',
+          '#2ECC40',
+          '#01FF70',
+          '#FFDC00',
+        ]
+        circles.map((circle, i) => {
           new google.maps.Circle({
             strokeColor: '#FF0000',
             strokeOpacity: 0.8,
             strokeWeight: 2,
-            fillColor: '#FF0000',
-            fillOpacity: 0.35,
+            fillColor: clusterColors[i % clusterColors.length],
+            fillOpacity: 0.5,
             map: map,
-            center: { lat, lng },
-            radius: 500
+            center: { lat: circle.center[0], lng: circle.center[1] },
+            radius: circle.radius
           });
-        }
+        })
+      });
+
+      getPoints().then(points => {
+        console.log(points.length)
+        heatmap = new google.maps.visualization.HeatmapLayer({
+          data: points,
+          map: map
+        });
       })
     }
 
@@ -143,6 +136,12 @@
       heatmap.set('opacity', heatmap.get('opacity') ? null : 0.2);
     }
 
+    function getCircles() {
+      return fetch('./data/k_means.json')
+        .then(res => res.json())
+        .then(json => json.circles)
+    }
+
     // Heatmap data: 500 Points
     function getPoints() {
       return fetch('./data/heatmaps.json')
@@ -151,7 +150,7 @@
         .then(points => {
           return points.map(point => {
             if (point.heat > 0)
-              return point;
+              return new google.maps.LatLng(point.lat, point.lng);
             else return null;
           })
             .filter(point => point !== null);
