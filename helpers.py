@@ -1,7 +1,7 @@
 latStart = 12.95
 longitudeStart = 77.7
 steps = 10
-resolution = 1000
+resolution = 100
 
 kmToDeg = lambda x: x/111
 degToKm = lambda x: x * 111
