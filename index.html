@@ -71,10 +71,43 @@
       });
 
       getPoints().then(points => {
-        heatmap = new google.maps.visualization.HeatmapLayer({
-          data: points,
-          map: map
-        });
+        // heatmap = new google.maps.visualization.HeatmapLayer({
+        //   data: points,
+        //   map: map
+        // });
+        const radius = 5;
+        // points.map(point => {
+        //   // console.log(point.latLng)
+        //   new google.maps.Circle({
+        //     center: new google.maps.LatLng(point.lat, point.lng),
+        //     clickable: true,
+        //     draggable: false,
+        //     editable: false,
+        //     fillColor: '#004de8',
+        //     fillOpacity: 0.27,
+        //     map: map,
+        //     radius: radius,
+        //     strokeColor: '#004de8',
+        //     strokeOpacity: 0.62,
+        //     strokeWeight: 1,
+        //   })
+        // })
+        console.log(points.length)
+        for (let i = 0; i < 100; i += 1) {
+          const lat = parseFloat(points[i].lat);
+          const lng = parseFloat(points[i].lng);
+          console.log(lat, lng);
+          new google.maps.Circle({
+            strokeColor: '#FF0000',
+            strokeOpacity: 0.8,
+            strokeWeight: 2,
+            fillColor: '#FF0000',
+            fillOpacity: 0.35,
+            map: map,
+            center: { lat, lng },
+            radius: 500
+          });
+        }
       })
     }
 
@@ -118,9 +151,10 @@
         .then(points => {
           return points.map(point => {
             if (point.heat > 0)
-              return new google.maps.LatLng(point.lat, point.lng);
+              return point;
             else return null;
           })
+            .filter(point => point !== null);
         })
       // return [
       //   new google.maps.LatLng(12.99, 77.77),
