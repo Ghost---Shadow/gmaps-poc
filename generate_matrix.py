@@ -15,9 +15,12 @@ longitudes = np.linspace(longitudeStart, longitudeStart + distance, resolution)
 
 matrix = np.zeros([resolution, resolution], np.float32)
 
-##myPreference = ['atm','school','bank','airport']
-with open('./types.txt','r') as f:
-    myPreference = f.read().split('\n') 
+myPreference = ['atm','school']
+#with open('./types.txt','r') as f:
+#    myPreference = f.read().split('\n')
+
+
+heatmaps = []
 
 for i, lat in enumerate(latitudes):
     for j, lng in enumerate(longitudes):
@@ -29,8 +32,14 @@ for i, lat in enumerate(latitudes):
                 for establishment_id in data[lat][lng]:
                     establishment = data[lat][lng][establishment_id]
                     matrix[i,j] += dot_product(myPreference, establishment)
+                heatmaps.append({'lat':lat,'lng':lng,'heat':float(matrix[i,j])})
 
 matrix /= np.max(matrix)
+
+jsonData = {'heatmaps':heatmaps}
+
+with open('./data/heatmaps.json','w') as f:
+    json.dump(jsonData, f)
 
 np.save('./data/result_matrix.npy', matrix)
 
