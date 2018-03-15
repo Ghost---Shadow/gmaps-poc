@@ -30,8 +30,8 @@
       });
 
       getPoints().then(points => {
-        console.log(points.length);
-        console.log(points)
+        // console.log(points.length);
+        // console.log(points)
         const factor = .5;
         const maxHeat = points.reduce((acc, p) => {
           return Math.max(acc, p.heat);
@@ -49,26 +49,33 @@
             radius: 1000,
           });
           circle.addListener('click', function () {
-            console.log(point.details.length)
-            if (!point.details.markers) {
-              point.details.markers = [];
+            // console.log(point.details.length)
+            if (!point.markers) {
+              point.markers = [];
               point.details.map(establishment => {
-                console.log(establishment.name,
-                  establishment.types);
-                point.details.markers.push(new google.maps.Marker({
+                // console.log(establishment.name,
+                //   establishment.types);
+                const marker = new google.maps.Marker({
                   position: {
                     lat: establishment.geometry.location.lat,
                     lng: establishment.geometry.location.lng
                   },
                   map: map,
                   title: establishment.name,
-                }));
+                });
+                marker.addListener('click', function () {
+                  marker.infoWindow = new google.maps.InfoWindow({
+                    content: establishment.name,
+                  });
+                  marker.infoWindow.open(map, marker);
+                });
+                point.markers.push(marker);
               });
             } else {
-              point.details.markers.map(marker => {
+              point.markers.map(marker => {
                 marker.setMap(null);
               })
-              delete point.details.markers;
+              delete point.markers;
             }
           });
         });
