@@ -32,19 +32,22 @@
       const heatMapZoomFactor = 2.5;
 
       getPoints().then(points => {
+        // console.log(points)
         const maxHeat = points.reduce((acc, p) => {
           return Math.max(acc, p.heat);
         }, 0)
 
         points.map(point => {
+          const lat = parseFloat(point.lat);
+          const lng = parseFloat(point.lng);
           const circle = new google.maps.Circle({
             strokeColor: '#000000',
             strokeOpacity: 0.8,
             strokeWeight: 0,
             fillColor: '#ff0000',
-            fillOpacity: .1,
+            fillOpacity: 0.1,
             map: map,
-            center: { lat: point.lat, lng: point.lng },
+            center: { lat, lng },
             radius: 1000,
           });
 
@@ -57,8 +60,8 @@
                 //   establishment.types);
                 const marker = new google.maps.Marker({
                   position: {
-                    lat: establishment.geometry.location.lat,
-                    lng: establishment.geometry.location.lng
+                    lat: parseFloat(establishment.geometry.location.lat),
+                    lng: parseFloat(establishment.geometry.location.lng)
                   },
                   map: map,
                   title: establishment.name,
@@ -66,6 +69,28 @@
                 marker.addListener('click', function () {
                   marker.infoWindow = new google.maps.InfoWindow({
                     content: establishment.name,
+                  });
+                  marker.infoWindow.open(map, marker);
+                });
+                point.markers.push(marker);
+              });
+              // console.log(point.advertisements)
+              point.advertisements.map(advertisement => {
+                // console.log(advertisement.lat, advertisement.lng)
+                const marker = new google.maps.Marker({
+                  position: {
+                    lat: parseFloat(advertisement.lat),
+                    lng: parseFloat(advertisement.lng)
+                  },
+                  map: map,
+                  title: advertisement.name,
+                  icon: 'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png'
+                });
+                marker.addListener('click', function () {
+                  marker.infoWindow = new google.maps.InfoWindow({
+                    content: `<h1>${advertisement.name}</h1>
+                    <img src="http://www.eplans.com/house-plans/media/catalog/product/cache/2/small_image/192x144/9df78eab33525d08d6e5fb8d27136e95/d/g/dgg945-fr-ph-co_1.jpg" alt="house" />
+                    <p>${advertisement.description}</p>`,
                   });
                   marker.infoWindow.open(map, marker);
                 });
@@ -117,7 +142,7 @@
 
         google.maps.event.addListener(map, 'zoom_changed', () => {
           const radius = map.getZoom() * heatMapZoomFactor;
-          console.log(radius)
+          // console.log(radius)
           heatmap.setOptions({ radius })
         })
       })
@@ -138,13 +163,13 @@
       return fetch('./data/response.json')
         .then(res => res.json())
         .then(json => json.heatmaps)
+        // .then(console.log)
         .then(points => {
           return points.map(point => ({
             ...point,
             lat: parseFloat(point.lat),
             lng: parseFloat(point.lng),
           }))
-          // .filter(point => point.heat !== 0);
         });
     }
   </script>
