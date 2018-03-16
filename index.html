@@ -29,10 +29,9 @@
         center: { lat: 12.95, lng: 77.7 },
       });
 
+      const heatMapZoomFactor = 2.5;
+
       getPoints().then(points => {
-        // console.log(points.length);
-        // console.log(points)
-        const factor = .5;
         const maxHeat = points.reduce((acc, p) => {
           return Math.max(acc, p.heat);
         }, 0)
@@ -43,11 +42,12 @@
             strokeOpacity: 0.8,
             strokeWeight: 0,
             fillColor: '#ff0000',
-            fillOpacity: point.heat / maxHeat * factor,
+            fillOpacity: .1,
             map: map,
             center: { lat: point.lat, lng: point.lng },
             radius: 1000,
           });
+
           circle.addListener('click', function () {
             // console.log(point.details.length)
             if (!point.markers) {
@@ -79,21 +79,63 @@
             }
           });
         });
+
+        const allData = points.map(point => {
+          return point.details.map(establishment => {
+            return {
+              location: new google.maps.LatLng(
+                parseFloat(establishment.geometry.location.lat),
+                parseFloat(establishment.geometry.location.lng)
+              ),
+              weight: point.heat / maxHeat,
+              radius: map.getZoom() * heatMapZoomFactor,
+            };
+          });
+        });
+        const data = [].concat.apply([], allData)
+        var heatmap = new google.maps.visualization.HeatmapLayer({
+          data,
+          map,
+        });
+        var gradient = [
+          'rgba(0, 255, 255, 0)',
+          'rgba(0, 255, 255, 1)',
+          'rgba(0, 191, 255, 1)',
+          'rgba(0, 127, 255, 1)',
+          'rgba(0, 63, 255, 1)',
+          'rgba(0, 0, 255, 1)',
+          'rgba(0, 0, 223, 1)',
+          'rgba(0, 0, 191, 1)',
+          'rgba(0, 0, 159, 1)',
+          'rgba(0, 0, 127, 1)',
+          'rgba(63, 0, 91, 1)',
+          'rgba(127, 0, 63, 1)',
+          'rgba(191, 0, 31, 1)',
+          'rgba(255, 0, 0, 1)'
+        ]
+        heatmap.set('gradient', heatmap.get('gradient') ? null : gradient);
+
+        google.maps.event.addListener(map, 'zoom_changed', () => {
+          const radius = map.getZoom() * heatMapZoomFactor;
+          console.log(radius)
+          heatmap.setOptions({ radius })
+        })
       })
     }
 
     function getPoints() {
-      return fetch('http://localhost:5000/cached', {
-        method: 'post',
-        body: JSON.stringify({
-          lat: 12.9279,
-          lng: 77.6271,
-          preferences: [
-            { name: 'school', weight: 1 },
-            { name: 'atm', weight: 2 }
-          ]
-        })
-      })
+      // return fetch('http://localhost:5000/cached', {
+      //   method: 'post',
+      //   body: JSON.stringify({
+      //     lat: 12.9279,
+      //     lng: 77.6271,
+      //     preferences: [
+      //       { name: 'school', weight: 1 },
+      //       { name: 'atm', weight: 2 }
+      //     ]
+      //   })
+      // })
+      return fetch('./data/response.json')
         .then(res => res.json())
         .then(json => json.heatmaps)
         .then(points => {
@@ -102,7 +144,7 @@
             lat: parseFloat(point.lat),
             lng: parseFloat(point.lng),
           }))
-            .filter(point => point.heat !== 0);
+          // .filter(point => point.heat !== 0);
         });
     }
   </script>
