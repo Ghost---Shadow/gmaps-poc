@@ -83,7 +83,17 @@
     }
 
     function getPoints() {
-      return fetch('./data/heatmaps.json')
+      return fetch('http://localhost:5000/cached', {
+        method: 'post',
+        body: JSON.stringify({
+          lat: 12.9279,
+          lng: 77.6271,
+          preferences: [
+            { name: 'school', weight: 1 },
+            { name: 'atm', weight: 2 }
+          ]
+        })
+      })
         .then(res => res.json())
         .then(json => json.heatmaps)
         .then(points => {
